@@ -1,374 +1,308 @@
-  
- ```html
 <!DOCTYPE html>
-<html lang="en" class="light">
+<html lang="hi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="description" content="Universal AI Chat Interface">
-    <title>Universal AI Chat</title>
-    
-    <!-- Tailwind CSS v4 Play CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    
-    <!-- Marked.js for Markdown rendering -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.js"></script>
-    
-    <!-- Highlight.js for code syntax highlighting -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-    
-    <style type="text/tailwindcss">
-        @theme {
-            --color-primary: #1a73e8;
-            --color-primary-dark: #8ab4f8;
-            --color-bg-light: #ffffff;
-            --color-bg-dark: #1f2937;
-            --color-sidebar-light: #f8f9fa;
-            --color-sidebar-dark: #111827;
-            --color-border-light: #e5e7eb;
-            --color-border-dark: #374151;
-            --color-text-light: #1f2937;
-            --color-text-dark: #f3f4f6;
-            --color-text-secondary-light: #6b7280;
-            --color-text-secondary-dark: #9ca3af;
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apna AI Chatbot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .chat-container {
+            width: 90%;
+            max-width: 800px;
+            height: 80vh;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .chat-header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .chat-header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 20px;
+            margin: 0 10px;
+            line-height: 1.4;
+        }
+
+        .message.bot .message-content {
+            background: white;
+            color: #333;
+            border-bottom-left-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .message.user .message-content {
+            background: #667eea;
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+        }
+
+        .message.bot .avatar {
+            background: #764ba2;
+        }
+
+        .message.user .avatar {
+            background: #667eea;
+        }
+
+        .chat-input {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 12px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            outline: none;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .chat-input input:focus {
+            border-color: #667eea;
+        }
+
+        .chat-input button {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.2s;
+        }
+
+        .chat-input button:hover {
+            transform: scale(1.05);
+        }
+
+        .typing-indicator {
+            display: none;
+            padding: 10px 20px;
+            background: white;
+            border-radius: 20px;
+            margin-bottom: 15px;
+            width: fit-content;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .typing-indicator.active {
+            display: flex;
+            gap: 5px;
+        }
+
+        .dot {
             width: 8px;
             height: 8px;
+            background: #999;
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out both;
         }
-        ::-webkit-scrollbar-track {
-            background: transparent;
+
+        .dot:nth-child(1) { animation-delay: -0.32s; }
+        .dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
         }
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 4px;
-        }
-        .dark ::-webkit-scrollbar-thumb {
-            background: #4b5563;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
-        }
-        
-        /* Markdown content styles */
-        .markdown-body {
-            line-height: 1.6;
-        }
-        .markdown-body p {
-            margin-bottom: 0.75rem;
-        }
-        .markdown-body pre {
-            background: #f3f4f6;
-            padding: 1rem;
-            border-radius: 0.5rem;
+
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
             overflow-x: auto;
-            margin: 0.75rem 0;
-        }
-        .dark .markdown-body pre {
-            background: #1f2937;
-        }
-        .markdown-body code {
             font-family: 'Courier New', monospace;
-            font-size: 0.875rem;
-        }
-        .markdown-body pre code {
-            background: transparent;
-            padding: 0;
-        }
-        .markdown-body p code {
-            background: rgba(0,0,0,0.05);
-            padding: 0.2rem 0.4rem;
-            border-radius: 0.25rem;
-        }
-        .dark .markdown-body p code {
-            background: rgba(255,255,255,0.1);
-        }
-        .markdown-body ul, .markdown-body ol {
-            margin-left: 1.5rem;
-            margin-bottom: 0.75rem;
-        }
-        .markdown-body li {
-            margin-bottom: 0.25rem;
-        }
-        .markdown-body h1, .markdown-body h2, .markdown-body h3 {
-            font-weight: 600;
-            margin-top: 1.5rem;
-            margin-bottom: 0.75rem;
-        }
-        .markdown-body h1 { font-size: 1.5rem; }
-        .markdown-body h2 { font-size: 1.25rem; }
-        .markdown-body h3 { font-size: 1.125rem; }
-        .markdown-body blockquote {
-            border-left: 4px solid #e5e7eb;
-            padding-left: 1rem;
-            color: #6b7280;
-            margin: 0.75rem 0;
-        }
-        .dark .markdown-body blockquote {
-            border-left-color: #374151;
-            color: #9ca3af;
-        }
-        .markdown-body table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 0.75rem 0;
-        }
-        .markdown-body th, .markdown-body td {
-            border: 1px solid #e5e7eb;
-            padding: 0.5rem;
-            text-align: left;
-        }
-        .dark .markdown-body th, .dark .markdown-body td {
-            border-color: #374151;
-        }
-        .markdown-body th {
-            background: #f9fafb;
-        }
-        .dark .markdown-body th {
-            background: #1f2937;
-        }
-        
-        /* Animation for typing indicator */
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        .typing-dot {
-            animation: pulse 1.4s infinite;
-        }
-        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
-        
-        /* Mobile keyboard fix */
-        .input-container {
-            position: sticky;
-            bottom: 0;
-            z-index: 50;
-        }
-        
-        /* Sidebar transition */
-        .sidebar {
-            transition: transform 0.3s ease-in-out;
-        }
-        
-        /* Code block copy button */
-        .code-block-wrapper {
-            position: relative;
-        }
-        .copy-code-btn {
-            position: absolute;
-            top: 0.5rem;
-            right: 0.5rem;
-            opacity: 0;
-            transition: opacity 0.2s;
-        }
-        .code-block-wrapper:hover .copy-code-btn {
-            opacity: 1;
         }
     </style>
 </head>
-<body class="bg-bg-light dark:bg-bg-dark text-text-light dark:text-text-dark transition-colors duration-200">
-    <!-- Loading Screen -->
-    <div id="loading" class="fixed inset-0 bg-bg-light dark:bg-bg-dark z-[100] flex items-center justify-center">
-        <div class="text-center">
-            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary dark:border-primary-dark mx-auto mb-4"></div>
-            <p class="text-text-secondary-light dark:text-text-secondary-dark">Loading App...</p>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <h1>🤖 Apna AI Assistant</h1>
+            <p>Main aapki madad ke liye hamesha taiyaar hoon</p>
+        </div>
+        
+        <div class="chat-messages" id="chatMessages">
+            <div class="message bot">
+                <div class="avatar">AI</div>
+                <div class="message-content">
+                    Namaste! Main aapka AI assistant hoon. Aap mujhse kuch bhi pooch sakte hain. Main Hindi aur English dono mein jawab de sakta hoon!
+                </div>
+            </div>
+        </div>
+
+        <div class="typing-indicator" id="typingIndicator">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+        </div>
+
+        <div class="chat-input">
+            <input type="text" id="userInput" placeholder="Apna message type karein..." autocomplete="off">
+            <button onclick="sendMessage()">Bhejo</button>
         </div>
     </div>
 
-    <!-- Mobile Sidebar Overlay -->
-    <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden" onclick="app.toggleSidebar()"></div>
+    <script>
+        const API_KEY = 'AIzaSyYOUR_API_KEY_HERE'; // Gemini API key daalein
+        const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
 
-    <div class="flex min-h-screen">
-        <!-- Sidebar -->
-        <aside id="sidebar" class="sidebar fixed lg:static inset-y-0 left-0 w-72 bg-sidebar-light dark:bg-sidebar-dark border-r border-border-light dark:border-border-dark z-50 transform -translate-x-full lg:translate-x-0 flex flex-col">
-            <!-- Sidebar Header -->
-            <div class="p-4 border-b border-border-light dark:border-border-dark">
-                <button onclick="app.newChat()" class="w-full flex items-center gap-3 px-4 py-3 bg-white dark:bg-gray-800 border border-border-light dark:border-border-dark rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow-sm">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                    </svg>
-                    <span class="font-medium">New Chat</span>
-                </button>
-            </div>
+        const chatMessages = document.getElementById('chatMessages');
+        const userInput = document.getElementById('userInput');
+        const typingIndicator = document.getElementById('typingIndicator');
 
-            <!-- Chat History -->
-            <div id="chat-history" class="flex-1 overflow-y-auto p-2 space-y-1">
-                <!-- Chat items will be inserted here -->
-            </div>
+        // Enter key se bhejne ke liye
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
 
-            <!-- Sidebar Footer -->
-            <div class="p-4 border-t border-border-light dark:border-border-dark space-y-2">
-                <button onclick="app.openSettings()" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-left">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                    </svg>
-                    <span>Settings</span>
-                </button>
-                <button onclick="app.toggleDarkMode()" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-left">
-                    <svg id="theme-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
-                    </svg>
-                    <span id="theme-text">Dark Mode</span>
-                </button>
-            </div>
-        </aside>
+        async function sendMessage() {
+            const message = userInput.value.trim();
+            if (!message) return;
 
-        <!-- Main Content -->
-        <main class="flex-1 flex flex-col min-w-0 relative">
-            <!-- Mobile Header -->
-            <header class="lg:hidden flex items-center justify-between p-4 border-b border-border-light dark:border-border-dark bg-bg-light dark:bg-bg-dark sticky top-0 z-30">
-                <button onclick="app.toggleSidebar()" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                    </svg>
-                </button>
-                <h1 class="font-semibold text-lg truncate px-4" id="mobile-title">New Chat</h1>
-                <button onclick="app.newChat()" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                    </svg>
-                </button>
-            </header>
+            // User message dikhayein
+            addMessage(message, 'user');
+            userInput.value = '';
 
-            <!-- Chat Container -->
-            <div id="chat-container" class="flex-1 overflow-y-auto p-4 lg:p-8 space-y-6 scroll-smooth">
-                <!-- Welcome Screen -->
-                <div id="welcome-screen" class="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
-                    <div class="w-16 h-16 bg-primary/10 dark:bg-primary-dark/20 rounded-2xl flex items-center justify-center mb-6">
-                        <svg class="w-8 h-8 text-primary dark:text-primary-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
-                        </svg>
-                    </div>
-                    <h2 class="text-3xl font-bold mb-3">Universal AI Chat</h2>
-                    <p class="text-text-secondary-light dark:text-text-secondary-dark max-w-md mb-8">
-                        Start a conversation with AI. Your chats are stored locally and can be accessed anytime.
-                    </p>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-lg">
-                        <button onclick="app.setExample('Explain quantum computing in simple terms')" class="p-4 text-left rounded-xl border border-border-light dark:border-border-dark hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                            <div class="text-sm font-medium mb-1">Explain quantum computing</div>
-                            <div class="text-xs text-text-secondary-light dark:text-text-secondary-dark">in simple terms</div>
-                        </button>
-                        <button onclick="app.setExample('Write a Python function to sort a list')" class="p-4 text-left rounded-xl border border-border-light dark:border-border-dark hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                            <div class="text-sm font-medium mb-1">Write Python code</div>
-                            <div class="text-xs text-text-secondary-light dark:text-text-secondary-dark">to sort a list</div>
-                        </button>
-                        <button onclick="app.setExample('Help me brainstorm ideas for a mobile app')" class="p-4 text-left rounded-xl border border-border-light dark:border-border-dark hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                            <div class="text-sm font-medium mb-1">Brainstorm ideas</div>
-                            <div class="text-xs text-text-secondary-light dark:text-text-secondary-dark">for a mobile app</div>
-                        </button>
-                        <button onclick="app.setExample('Translate Hello to Japanese')" class="p-4 text-left rounded-xl border border-border-light dark:border-border-dark hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                            <div class="text-sm font-medium mb-1">Translate text</div>
-                            <div class="text-xs text-text-secondary-light dark:text-text-secondary-dark">Hello to Japanese</div>
-                        </button>
-                    </div>
-                </div>
-                
-                <!-- Messages will be inserted here -->
-                <div id="messages" class="hidden space-y-6 max-w-4xl mx-auto w-full"></div>
-            </div>
+            // Typing indicator dikhayein
+            typingIndicator.classList.add('active');
 
-            <!-- Input Area -->
-            <div class="input-container bg-bg-light dark:bg-bg-dark border-t border-border-light dark:border-border-dark p-4">
-                <div class="max-w-4xl mx-auto">
-                    <div class="relative flex items-end gap-2 bg-white dark:bg-gray-800 border border-border-light dark:border-border-dark rounded-2xl shadow-sm p-2">
-                        <textarea 
-                            id="message-input" 
-                            rows="1"
-                            placeholder="Message AI..."
-                            class="flex-1 resize-none bg-transparent border-0 focus:ring-0 p-3 max-h-32 outline-none text-text-light dark:text-text-dark placeholder-text-secondary-light dark:placeholder-text-secondary-dark"
-                            onkeydown="app.handleKeyDown(event)"
-                            oninput="app.autoResize(this)"
-                        ></textarea>
-                        <button 
-                            onclick="app.sendMessage()" 
-                            id="send-btn"
-                            class="p-3 bg-primary dark:bg-primary-dark text-white rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
-                            </svg>
-                        </button>
-                    </div>
-                    <div class="text-center mt-2 text-xs text-text-secondary-light dark:text-text-secondary-dark">
-                        AI can make mistakes. Please verify important information.
-                    </div>
-                </div>
-            </div>
-        </main>
-    </div>
+            try {
+                // API call karein
+                const response = await fetch(`${API_URL}?key=${API_KEY}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{
+                                text: message
+                            }]
+                        }]
+                    })
+                });
 
-    <!-- Settings Modal -->
-    <div id="settings-modal" class="fixed inset-0 bg-black/50 z-[60] hidden flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto shadow-2xl">
-            <div class="p-6 border-b border-border-light dark:border-border-dark flex items-center justify-between">
-                <h3 class="text-lg font-semibold">Settings</h3>
-                <button onclick="app.closeSettings()" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
-            </div>
-            <div class="p-6 space-y-6">
-                <!-- API Key -->
-                <div>
-                    <label class="block text-sm font-medium mb-2">OpenRouter API Key</label>
-                    <input 
-                        type="password" 
-                        id="api-key-input" 
-                        placeholder="sk-or-v1-..."
-                        class="w-full px-4 py-2 border border-border-light dark:border-border-dark rounded-lg bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-primary dark:focus:ring-primary-dark outline-none"
-                    >
-                    <p class="text-xs text-text-secondary-light dark:text-text-secondary-dark mt-1">
-                        Get your key from <a href="https://openrouter.ai/keys" target="_blank" class="text-primary dark:text-primary-dark underline">openrouter.ai</a>
-                    </p>
-                </div>
+                const data = await response.json();
+                typingIndicator.classList.remove('active');
 
-                <!-- Model Selection -->
-                <div>
-                    <label class="block text-sm font-medium mb-2">Model</label>
-                    <input 
-                        type="text" 
-                        id="model-input" 
-                        placeholder="deepseek/deepseek-r1:free"
-                        class="w-full px-4 py-2 border border-border-light dark:border-border-dark rounded-lg bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-primary dark:focus:ring-primary-dark outline-none"
-                    >
-                    <p class="text-xs text-text-secondary-light dark:text-text-secondary-dark mt-1">
-                        Default: deepseek/deepseek-r1:free
-                    </p>
-                </div>
+                if (data.candidates && data.candidates[0].content.parts[0].text) {
+                    const botResponse = data.candidates[0].content.parts[0].text;
+                    addMessage(botResponse, 'bot');
+                } else {
+                    addMessage('Maaf kijiye, mujhe samajh nahi aaya. Kripya dobara poochiye.', 'bot');
+                }
+            } catch (error) {
+                typingIndicator.classList.remove('active');
+                addMessage('Koi error aa gaya. Please check karein ki API key sahi hai.', 'bot');
+                console.error('Error:', error);
+            }
+        }
 
-                <!-- System Prompt -->
-                <div>
-                    <label class="block text-sm font-medium mb-2">System Prompt</label>
-                    <textarea 
-                        id="system-prompt-input" 
-                        rows="3"
-                        placeholder="You are a helpful assistant..."
-                        class="w-full px-4 py-2 border border-border-light dark:border-border-dark rounded-lg bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-primary dark:focus:ring-primary-dark outline-none resize-none"
-                    ></textarea>
-                </div>
-
-                <!-- Global System Prompt Toggle -->
-                <div class="flex items-center justify-between">
-                    <label class="text-sm font-medium">Use for all chats</label>
-                    <button 
-                        id="global-prompt-toggle"
-                        onclick="app.toggleGlobalPrompt()"
-                        class="w-12 h-6 bg-gray-300 dark:bg-gray-600 rounded-full relative transition-colors"
-                    >
-                        <div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform"></div>
-                    </button>
-                </div>
-            </div>
-            <div class="p-6 border-t border-border-light dark:border-border-dark flex gap-3">
-                <button onclick="app.saveSettings()" class="flex-1 bg-primary dark:bg-primary-dark text-white py-2 rounded-lg hover:opacity-90 transition-opacity font-medium">
-                    Save Settings
-                </button>
-                <button onclick="app.closeSettings()" class="flex-1 border border-border-light dark:border-border-dark py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors font-medium">
-                    Cancel
-                
+        function addMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'avatar';
+            avatar.textContent = sender === 'user' ? 'Aap' : 'AI';
+            
+            const content = document.createElement('div');
+            content.className = 'message-content';
+            
+            // Markdown jaise formatting handle karein
+            let formattedText = text
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/```([\s\S]*?)```/g, '<div class="code-block">$1</div>')
+                .replace(/`([^`]+)`/g, '<code style="background:#f0f0f0;padding:2px 4px;border-radius:3px;">$1</code>')
+                .replace(/\n/g, '<br>');
+            
+            content.innerHTML = formattedText;
+            
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(content);
+            chatMessages.appendChild(messageDiv);
+            
+            // Auto scroll to bottom
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+    </script>
+</body>
+</html>
